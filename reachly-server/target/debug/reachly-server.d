@@ -1,0 +1,1 @@
+C:\Users\punya\Project\whatsapp\ bot\salez.online\reachly-server\target\debug\reachly-server.exe: C:\Users\punya\Project\whatsapp\ bot\salez.online\reachly-server\src\db.rs C:\Users\punya\Project\whatsapp\ bot\salez.online\reachly-server\src\main.rs
