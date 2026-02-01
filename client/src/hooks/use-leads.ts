@@ -1,17 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl, type InsertLead } from "@shared/routes";
 import { useToast } from "@/hooks/use-toast";
+import { getLeads } from "@/services/leads";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLeads } from "@/services/leads";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useLeads() {
   return useQuery({
-    queryKey: [api.leads.list.path],
-    queryFn: async () => {
-      const res = await fetch(api.leads.list.path, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch leads");
-      return api.leads.list.responses[200].parse(await res.json());
-    },
+    queryKey: ["leads"],
+    queryFn: fetchLeads,
   });
 }
+
 
 export function useCreateLead() {
   const queryClient = useQueryClient();
