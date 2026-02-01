@@ -1,4 +1,4 @@
-import { useLeads } from "@/hooks/useLeads";
+import { useLeads } from "@/hooks/use-leads";
 
 export default function LeadsPage() {
   const { data, isLoading, error } = useLeads();
@@ -8,9 +8,9 @@ export default function LeadsPage() {
 
   return (
     <div className="space-y-4">
-      {data.map((lead: any) => (
+      {data?.map((lead: any) => (
         <div key={lead.id} className="p-4 border rounded">
-          <div>{lead.phone_number}</div>
+          <div>{lead.phone}</div>
           <div className="text-sm text-gray-500">{lead.status}</div>
         </div>
       ))}

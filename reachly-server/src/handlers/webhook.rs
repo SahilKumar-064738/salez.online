@@ -3,7 +3,7 @@ use serde::Deserialize;
 use sqlx::PgPool;
 use serde_json::json;
 
-use crate::db::leads::{
+use crate::db::webhook::{
     get_default_business_id,
     upsert_lead,
     insert_inbound_message,

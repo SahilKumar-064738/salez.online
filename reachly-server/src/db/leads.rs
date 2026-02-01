@@ -1,9 +1,9 @@
 use sqlx::{PgPool, Row};
-use crate::models::leads::LeadDto;
+use crate::models::leads::{LeadDto, CreateLeadRequest};
 
 pub async fn fetch_leads(db: &PgPool) -> Vec<LeadDto> {
     let rows = sqlx::query(
-        "SELECT id, phone_number, status, created_at FROM leads ORDER BY created_at DESC"
+        "SELECT id, name, phone, status, last_contacted_at, created_at FROM leads ORDER BY created_at DESC"
     )
     .fetch_all(db)
     .await
@@ -12,60 +12,36 @@ pub async fn fetch_leads(db: &PgPool) -> Vec<LeadDto> {
     rows.into_iter()
         .map(|r| LeadDto {
             id: r.get("id"),
-            phone_number: r.get("phone_number"),
+            name: r.get("name"),
+            phone: r.get("phone"),
             status: r.get("status"),
+            last_contacted_at: r.get("last_contacted_at"),
             created_at: r.get("created_at"),
         })
         .collect()
 }
-use uuid::Uuid;
 
-pub async fn get_default_business_id(db: &PgPool) -> Uuid {
-    let row = sqlx::query("SELECT id FROM businesses LIMIT 1")
-        .fetch_one(db)
-        .await
-        .expect("No business found");
-
-    row.get("id")
-}
-
-pub async fn upsert_lead(
-    db: &PgPool,
-    business_id: Uuid,
-    phone: &str,
-) -> Uuid {
+pub async fn insert_lead(db: &PgPool, lead: &CreateLeadRequest) -> LeadDto {
     let row = sqlx::query(
         r#"
-        INSERT INTO leads (business_id, phone_number)
-        VALUES ($1, $2)
-        ON CONFLICT (business_id, phone_number)
-        DO UPDATE SET automation_paused = false
-        RETURNING id
+        INSERT INTO leads (name, phone, status)
+        VALUES ($1, $2, $3)
+        RETURNING id, name, phone, status, last_contacted_at, created_at
         "#
     )
-    .bind(business_id)
-    .bind(phone)
+    .bind(&lead.name)
+    .bind(&lead.phone)
+    .bind(&lead.status)
     .fetch_one(db)
     .await
-    .expect("Failed to upsert lead");
+    .expect("Failed to insert lead");
 
-    row.get("id")
-}
-
-pub async fn insert_inbound_message(
-    db: &PgPool,
-    lead_id: Uuid,
-    content: &str,
-) {
-    sqlx::query(
-        r#"
-        INSERT INTO messages (lead_id, direction, content, created_at)
-        VALUES ($1, 'inbound', $2, now())
-        "#
-    )
-    .bind(lead_id)
-    .bind(content)
-    .execute(db)
-    .await
-    .expect("Failed to insert inbound message");
+    LeadDto {
+        id: row.get("id"),
+        name: row.get("name"),
+        phone: row.get("phone"),
+        status: row.get("status"),
+        last_contacted_at: row.get("last_contacted_at"),
+        created_at: row.get("created_at"),
+    }
 }

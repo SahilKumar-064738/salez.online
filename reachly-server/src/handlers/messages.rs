@@ -1,4 +1,4 @@
-use axum::{extract::{State, Path}, Json};
+use axum::{extract::{State, Path}, Json, http::StatusCode};
 use serde::Deserialize;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -15,6 +15,7 @@ pub async fn send_message(
     State(db): State<PgPool>,
     Path(conversation_id): Path<Uuid>,
     Json(payload): Json<SendMessagePayload>,
-) -> Json<MessageDto> {
-    Json(create_outgoing_message(&db, conversation_id, &payload.content).await)
+) -> (StatusCode, Json<MessageDto>) {
+    let msg = create_outgoing_message(&db, conversation_id, &payload.content).await;
+    (StatusCode::CREATED, Json(msg))
 }

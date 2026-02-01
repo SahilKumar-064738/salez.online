@@ -40,7 +40,7 @@ pub async fn insert_inbound_message(
 ) {
     sqlx::query(
         r#"
-        INSERT INTO messages (lead_id, direction, content, sent_at)
+        INSERT INTO messages (lead_id, direction, content, created_at)
         VALUES ($1, 'inbound', $2, now())
         "#
     )

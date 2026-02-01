@@ -1,12 +1,3 @@
-use serde::Serialize;
-use uuid::Uuid;
-use chrono::NaiveDateTime;
-
-#[derive(Serialize)]
-pub struct MessageDto {
-    pub id: Uuid,
-    pub conversation_id: Uuid,
-    pub direction: String,
-    pub content: String,
-    pub created_at: NaiveDateTime,
-}
+// MessageDto is defined in models::conversation (single source of truth).
+// Re-export it here so that `use crate::models::message::MessageDto` still compiles.
+pub use crate::models::conversation::MessageDto;
