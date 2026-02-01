@@ -4,35 +4,25 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { MessageCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useLogin } from "@/hooks/use-auth";
 
 const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email:    z.string().email("Enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export default function Login() {
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  
+  const login = useLogin();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Mock login
-    toast({
-      title: "Welcome back!",
-      description: "Redirecting to dashboard...",
-    });
-    setTimeout(() => setLocation("/dashboard"), 1000);
+    login.mutate(values);
   }
 
   return (
@@ -51,46 +41,31 @@ export default function Login() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="name@company.com" {...field} className="rounded-lg" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
-                    <a href="#" className="text-xs text-primary hover:underline">Forgot password?</a>
-                  </div>
-                  <FormControl>
-                    <Input type="password" {...field} className="rounded-lg" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full rounded-lg bg-primary hover:bg-primary/90 font-bold text-white shadow-lg shadow-primary/20">
-              Sign in
+            <FormField control={form.control} name="email" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email address</FormLabel>
+                <FormControl><Input placeholder="name@company.com" {...field} className="rounded-lg" /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField control={form.control} name="password" render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Password</FormLabel>
+                </div>
+                <FormControl><Input type="password" {...field} className="rounded-lg" /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <Button type="submit" disabled={login.isPending} className="w-full rounded-lg bg-primary hover:bg-primary/90 font-bold text-white shadow-lg shadow-primary/20">
+              {login.isPending ? "Signing in…" : "Sign in"}
             </Button>
           </form>
         </Form>
 
         <div className="text-center text-sm text-slate-500">
-          Don't have an account?{" "}
-          <Link href="/auth/signup" className="text-primary hover:underline font-semibold">
-            Start free trial
-          </Link>
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/signup" className="text-primary hover:underline font-semibold">Start free trial</Link>
         </div>
       </div>
     </div>

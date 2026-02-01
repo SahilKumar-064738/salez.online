@@ -4,3 +4,4 @@ pub mod message;
 pub mod templates;
 pub mod rules;
 pub mod reminders;
+pub mod auth;

@@ -16,15 +16,19 @@ import { Footer } from "@/components/Footer";
 function Router() {
   return (
     <Switch>
+      {/* Public */}
       <Route path="/" component={Landing} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/demo" component={Demo} />
+
+      {/* Auth */}
       <Route path="/auth/login" component={Login} />
       <Route path="/auth/signup" component={Signup} />
+
+      {/* Dashboard — all sub-routes handled inside Dashboard via its own nested router */}
+      <Route path="/dashboard/:rest*" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/dashboard/leads" component={Dashboard} />
-      <Route path="/dashboard/reminders" component={Dashboard} />
-      <Route path="/dashboard/settings" component={Dashboard} />
+
       <Route component={NotFound} />
     </Switch>
   );
