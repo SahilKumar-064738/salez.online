@@ -8,6 +8,7 @@ mod routes;
 mod handlers;
 mod models;
 mod static_files;
+mod utils;
 
 use db::pool::create_pool;
 use app::build_app;

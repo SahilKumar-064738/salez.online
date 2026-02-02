@@ -10,23 +10,38 @@ pub async fn fetch_leads(db: &PgPool) -> Vec<LeadDto> {
 }
 
 pub async fn fetch_lead(db: &PgPool, id: i64) -> Option<LeadDto> {
-    sqlx::query("SELECT id, name, phone, status, last_contacted_at, created_at FROM leads WHERE id = $1")
+    sqlx::query("SELECT * FROM leads
+WHERE user_id = $1
+ORDER BY created_at DESC;
+")
         .bind(id).fetch_optional(db).await.unwrap().map(|r| LeadDto {
             id: r.get("id"), name: r.get("name"), phone: r.get("phone"),
             status: r.get("status"), last_contacted_at: r.get("last_contacted_at"), created_at: r.get("created_at"),
         })
 }
 
-pub async fn insert_lead(db: &PgPool, lead: &CreateLeadRequest) -> LeadDto {
+pub async fn insert_lead(
+    db: &PgPool,
+    user_id: i64,
+    lead: &CreateLeadRequest,
+) -> Result<LeadDto, sqlx::Error>
+ {
     let row = sqlx::query(
-        "INSERT INTO leads (name, phone, status) VALUES ($1, $2, $3) \
+        "INSERT INTO leads (user_id, name, phone, status)
+VALUES ($1, $2, $3, $4)
+ \
          RETURNING id, name, phone, status, last_contacted_at, created_at"
     ).bind(&lead.name).bind(&lead.phone).bind(&lead.status)
-      .fetch_one(db).await.expect("insert lead");
-    LeadDto {
-        id: row.get("id"), name: row.get("name"), phone: row.get("phone"),
-        status: row.get("status"), last_contacted_at: row.get("last_contacted_at"), created_at: row.get("created_at"),
-    }
+      .fetch_one(db).await?;
+    Ok(LeadDto {
+    id: row.get("id"),
+    name: row.get("name"),
+    phone: row.get("phone"),
+    status: row.get("status"),
+    last_contacted_at: row.get("last_contacted_at"),
+    created_at: row.get("created_at"),
+})
+
 }
 
 pub async fn update_lead(db: &PgPool, id: i64, req: &UpdateLeadRequest) -> Option<LeadDto> {

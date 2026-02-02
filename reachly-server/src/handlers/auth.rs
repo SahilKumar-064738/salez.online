@@ -24,7 +24,7 @@ fn cookie_clear() -> header::HeaderValue {
     header::HeaderValue::from_str("session_token=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0").unwrap()
 }
 
-fn extract_token(headers: &axum::http::HeaderMap) -> Option<String> {
+pub fn extract_token(headers: &axum::http::HeaderMap) -> Option<String> {
     headers.get("cookie")?.to_str().ok().and_then(|c|
         c.split(';').map(|s| s.trim())
          .find(|s| s.starts_with("session_token="))
